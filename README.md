@@ -41,7 +41,7 @@ git push -u origin main
 
 ### 4. Espera ~2 minutos
 
-GitHub Actions compilará y publicará la app. Puedes ver el progreso en la pestaña **Actions** de tu repositorio.
+GitHub Actions compilará y publicará la app. Puedes ver el progreso en la pestaña **Actions** de tu repositorio...
 
 ---
 
