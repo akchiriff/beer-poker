@@ -27,7 +27,7 @@ git remote add origin https://github.com/TU_USUARIO/beer-poker.git
 git push -u origin main
 ```
 
-> ⚠️ Cambia `TU_USUARIO` por tu nombre de usuario de GitHub
+> ⚠️ Cambia `TU_USUARIO` por tu nombre de usuario de GitHub 
 
 ---
 
