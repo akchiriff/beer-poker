@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import Ably from "ably";
+import Ably from "ably"; 
 
 const BEERS = [
   { id: "quinto",  label: "Quinto",   emoji: "🍺",   points: 1,  desc: "Simple y rápido",          color: "#F59E0B", bg: "#2d2100" },
