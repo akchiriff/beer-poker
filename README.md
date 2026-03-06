@@ -80,10 +80,10 @@ base: '/beer-poker/',  // ← pon aquí el nombre exacto de tu repo
 |---------|--------|--------|
 | 🍺 Quinto | 1 | Simple y rápido |
 | 🍻 Caña | 2 | Algo de análisis |
-| 🍾 Tercio | 3 | Compleja, con partes |
-| 🪣 Jarra | 5 | Muy compleja, riesgo alto |
+| 🍾 Tercio | 4 | Compleja, con partes |
+| 🪣 Jarra | 6 | Muy compleja, riesgo alto |
 | 🛢️ Litrona | 8 | Épica, hay que dividirla |
-| 🛑 ¡Barril! | 13 | Rompe en tareas primero |
+| 🛑 ¡Barril! | 10 | Rompe en tareas primero |
 
 ## Nota técnica
 
