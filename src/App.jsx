@@ -41,9 +41,7 @@ function BeerCard({ beer, selected, onClick }) {
       justifyContent:"center", gap:6, padding:"10px 6px",
       position:"relative", flexShrink:0, fontFamily:"Georgia,serif",
     }}>
-      {selected && (
-        <div style={{position:"absolute",top:-10,right:-10,background:beer.color,borderRadius:"50%",width:24,height:24,display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,color:"#fff"}}>✓</div>
-      )}
+      {selected && <div style={{position:"absolute",top:-10,right:-10,background:beer.color,borderRadius:"50%",width:24,height:24,display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,color:"#fff"}}>✓</div>}
       <span style={{fontSize:34,lineHeight:1}}>{beer.emoji}</span>
       <span style={{fontSize:12,fontWeight:800,color:selected?beer.color:S.gold}}>{beer.label}</span>
       <span style={{fontSize:9,color:selected?beer.color:S.muted,textAlign:"center",lineHeight:1.3}}>{beer.desc}</span>
@@ -51,49 +49,45 @@ function BeerCard({ beer, selected, onClick }) {
   );
 }
 
-// ─── PlayerPill (con botón X para expulsar) ──────────────────
-function PlayerPill({ player, revealed, isMe, onKick }) {
+// ─── PlayerPill ──────────────────────────────────────────────
+function PlayerPill({ player, revealed, isMe, onKick, isObserver }) {
   const beer = player.vote ? BEERS.find(b=>b.id===player.vote) : null;
   return (
     <div style={{
       position:"relative", display:"flex", alignItems:"center", gap:12,
-      background:isMe?"#2d2418":S.card,
-      border:`2px solid ${isMe?S.gold:S.border}`,
+      background: isMe ? "#2d2418" : (isObserver ? "#0d1a2d" : S.card),
+      border:`2px solid ${isMe ? S.gold : (isObserver ? "#1e3a5f" : S.border)}`,
       borderRadius:14, padding:"12px 16px", minWidth:190,
+      opacity: isObserver ? 0.85 : 1,
     }}>
       {!isMe && onKick && (
-        <button
-          onClick={onKick}
-          title="Expulsar de la sala"
-          style={{
-            position:"absolute", top:-8, right:-8,
-            width:22, height:22, borderRadius:"50%",
-            background:"#7f1d1d", border:"2px solid #ef4444",
-            color:"#fca5a5", fontSize:11, cursor:"pointer",
-            display:"flex", alignItems:"center", justifyContent:"center",
-            lineHeight:1, padding:0, fontFamily:"Georgia,serif",
-            transition:"all 0.2s",
-          }}
-        >✕</button>
+        <button onClick={onKick} title="Expulsar de la sala" style={{
+          position:"absolute", top:-8, right:-8, width:22, height:22, borderRadius:"50%",
+          background:"#7f1d1d", border:"2px solid #ef4444", color:"#fca5a5",
+          fontSize:11, cursor:"pointer", display:"flex", alignItems:"center",
+          justifyContent:"center", lineHeight:1, padding:0, fontFamily:"Georgia,serif",
+        }}>✕</button>
       )}
       <div style={{
         width:44, height:58, borderRadius:10, flexShrink:0,
-        background:player.vote?(revealed?(beer?.bg||S.border):"#2d2418"):"#111",
-        border:`2px solid ${player.vote?(revealed&&beer?beer.color:S.gold):S.border}`,
+        background: isObserver ? "#0a1520" : (player.vote ? (revealed ? (beer?.bg||S.border) : "#2d2418") : "#111"),
+        border:`2px solid ${isObserver ? "#1e3a5f" : (player.vote ? (revealed&&beer ? beer.color : S.gold) : S.border)}`,
         display:"flex", alignItems:"center", justifyContent:"center",
-        fontSize:revealed&&beer?22:16, transition:"all 0.5s",
+        fontSize: isObserver ? 20 : (revealed&&beer ? 22 : 16), transition:"all 0.5s",
       }}>
-        {player.vote ? (revealed ? (beer?.emoji||"?") : "🍺") : "·"}
+        {isObserver ? "👁️" : (player.vote ? (revealed ? (beer?.emoji||"?") : "🍺") : "·")}
       </div>
       <div>
-        <div style={{fontWeight:700,fontSize:14,color:isMe?S.gold:S.text,fontFamily:"Georgia,serif"}}>
+        <div style={{fontWeight:700, fontSize:14, color: isMe ? S.gold : (isObserver ? "#60a5fa" : S.text), fontFamily:"Georgia,serif"}}>
           {player.name}{isMe?" (tú)":""}
         </div>
-        {revealed && beer
-          ? <div style={{fontSize:12,color:beer.color,fontWeight:700,marginTop:1}}>{beer.label} · {beer.points}pts</div>
-          : <div style={{fontSize:11,color:player.vote?"#6b9b47":S.muted,marginTop:1}}>{player.vote?"✓ Listo":"Pensando..."}</div>
+        {isObserver
+          ? <div style={{fontSize:11,color:"#3b82f6",marginTop:1}}>👁️ Observando</div>
+          : revealed && beer
+            ? <div style={{fontSize:12,color:beer.color,fontWeight:700,marginTop:1}}>{beer.label} · {beer.points}pts</div>
+            : <div style={{fontSize:11,color:player.vote?"#6b9b47":S.muted,marginTop:1}}>{player.vote?"✓ Listo":"Pensando..."}</div>
         }
-        {player.capacity != null && (
+        {!isObserver && player.capacity != null && (
           <div style={{fontSize:10,color:S.muted,marginTop:1}}>{CAPACITY.find(c=>c.val===player.capacity)?.label??""}</div>
         )}
       </div>
@@ -113,12 +107,46 @@ function CopyBtn({ text, label="Copiar" }) {
   );
 }
 
+// ─── Toggle ──────────────────────────────────────────────────
+function Toggle({ checked, onChange, label, sub }) {
+  return (
+    <div
+      onClick={()=>onChange(!checked)}
+      style={{
+        display:"flex", alignItems:"center", gap:14, cursor:"pointer",
+        background: checked ? "#0d1a2d" : S.card2,
+        border:`2px solid ${checked ? "#3b82f6" : S.border}`,
+        borderRadius:14, padding:"14px 18px",
+        transition:"all 0.2s",
+      }}
+    >
+      <div style={{
+        width:44, height:26, borderRadius:13, position:"relative",
+        background: checked ? "#3b82f6" : S.border,
+        transition:"background 0.2s", flexShrink:0,
+      }}>
+        <div style={{
+          position:"absolute", top:3, left: checked ? 21 : 3,
+          width:20, height:20, borderRadius:"50%",
+          background:"#fff", transition:"left 0.2s",
+          boxShadow:"0 2px 6px rgba(0,0,0,0.4)",
+        }}/>
+      </div>
+      <div>
+        <div style={{fontWeight:700, fontSize:14, color: checked ? "#60a5fa" : S.text, fontFamily:"Georgia,serif"}}>{label}</div>
+        <div style={{fontSize:11, color:S.muted, marginTop:2}}>{sub}</div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main App ─────────────────────────────────────────────────
 export default function App() {
   const [myId] = useState(uid);
   const [screen, setScreen] = useState("home");
   const [nameInput, setNameInput] = useState("");
   const [codeInput, setCodeInput] = useState(getRoomFromURL()||"");
+  const [isObserverInput, setIsObserverInput] = useState(false);
   const [roomCode, setRoomCode] = useState(null);
   const [myName, setMyName] = useState("");
   const [players, setPlayers] = useState({});
@@ -132,7 +160,6 @@ export default function App() {
   const ablyRef = useRef(null);
   const stateRef = useRef({players:{},story:"",revealed:false});
 
-  // ── Apply incoming state ──
   const applyState = useCallback((data) => {
     stateRef.current = data;
     setPlayers(data.players||{});
@@ -142,8 +169,7 @@ export default function App() {
     else setScreen(s => s === "home" ? s : "voting");
   },[]);
 
-  // ── Connect to Ably ──
-  const connectAbly = useCallback((code, name) => {
+  const connectAbly = useCallback((code) => {
     if(ablyRef.current) ablyRef.current.close();
     const ably = new Ably.Realtime({ key: ABLY_KEY, clientId: myId });
     ablyRef.current = ably;
@@ -158,7 +184,6 @@ export default function App() {
     return ch;
   },[myId, applyState]);
 
-  // ── Publish state to all ──
   const pub = useCallback((updater) => {
     const next = updater({...stateRef.current, players:{...stateRef.current.players}});
     stateRef.current = next;
@@ -169,12 +194,14 @@ export default function App() {
     channelRef.current?.publish("state", next);
   },[]);
 
-  // ── Room actions ──
   function createRoom() {
     if(!nameInput.trim()) return;
     const code = generateCode();
-    const ch = connectAbly(code, nameInput.trim());
-    const init = {players:{[myId]:{name:nameInput.trim(),vote:null,capacity:null}},story:"",revealed:false};
+    const ch = connectAbly(code);
+    const init = {
+      players:{ [myId]:{ name:nameInput.trim(), vote:null, capacity:null, observer: isObserverInput } },
+      story:"", revealed:false
+    };
     stateRef.current = init;
     setPlayers(init.players); setStory(""); setRevealed(false);
     setTimeout(()=>ch.publish("state", init), 500);
@@ -185,70 +212,59 @@ export default function App() {
   function joinRoom() {
     if(!nameInput.trim()||codeInput.length<4) return;
     const code = codeInput.trim().toUpperCase();
-    const ch = connectAbly(code, nameInput.trim());
+    const ch = connectAbly(code);
     setTimeout(()=>{
       ch.publish("req",{from:myId});
       setTimeout(()=>{
-        pub(s=>({...s,players:{...s.players,[myId]:{name:nameInput.trim(),vote:null,capacity:null}}}));
+        pub(s=>({...s, players:{...s.players, [myId]:{ name:nameInput.trim(), vote:null, capacity:null, observer: isObserverInput }}}));
       },600);
     },500);
     setRoomCode(code); setMyName(nameInput.trim());
     setRoomInURL(code); setScreen("voting");
   }
 
-  // ── Vote & game actions ──
   function castVote(id) {
-    pub(s=>({...s,players:{...s.players,[myId]:{...s.players[myId],vote:s.players[myId]?.vote===id?null:id}}}));
+    pub(s=>({...s, players:{...s.players, [myId]:{...s.players[myId], vote:s.players[myId]?.vote===id?null:id}}}));
   }
-
   function saveCapacity(val) {
-    pub(s=>({...s,players:{...s.players,[myId]:{...s.players[myId],capacity:val}}}));
+    pub(s=>({...s, players:{...s.players, [myId]:{...s.players[myId], capacity:val}}}));
   }
-
-  function saveStory() {
-    pub(s=>({...s,story:storyInput}));
-  }
-
-  function revealVotes() {
-    pub(s=>({...s,revealed:true}));
-  }
-
+  function saveStory() { pub(s=>({...s, story:storyInput})); }
+  function revealVotes() { pub(s=>({...s, revealed:true})); }
   function resetVotes() {
     const rp={};
-    Object.entries(players).forEach(([id,p])=>{ rp[id]={...p,vote:null}; });
-    pub(()=>({players:rp,story:storyInput,revealed:false}));
+    Object.entries(players).forEach(([id,p])=>{ rp[id]={...p, vote:null}; });
+    pub(()=>({players:rp, story:storyInput, revealed:false}));
     setScreen("voting");
   }
-
   function kickPlayer(id) {
     if(id===myId) return;
-    pub(s=>{
-      const next={...s.players};
-      delete next[id];
-      return {...s,players:next};
-    });
+    pub(s=>{ const next={...s.players}; delete next[id]; return {...s, players:next}; });
   }
 
-  // ── Derived state ──
+  // ── Derived ──
   const playerList = Object.entries(players).map(([id,p])=>({id,...p}));
-  const totalVoted = playerList.filter(p=>p.vote).length;
-  const allVoted = playerList.length>0 && totalVoted===playerList.length;
-  const myVote = players[myId]?.vote||null;
+  const voters     = playerList.filter(p=>!p.observer);
+  const observers  = playerList.filter(p=>p.observer);
+  const totalVoted = voters.filter(p=>p.vote).length;
+  const allVoted   = voters.length>0 && totalVoted===voters.length;
+  const myVote     = players[myId]?.vote||null;
   const myCapacity = players[myId]?.capacity??null;
+  const amObserver = players[myId]?.observer||false;
 
   const voteCounts = {};
-  playerList.forEach(p=>{if(p.vote) voteCounts[p.vote]=(voteCounts[p.vote]||0)+1;});
+  voters.forEach(p=>{if(p.vote) voteCounts[p.vote]=(voteCounts[p.vote]||0)+1;});
   const totalVotes = Object.values(voteCounts).reduce((s,v)=>s+v,0);
   const winnerVote = Object.entries(voteCounts).sort((a,b)=>b[1]-a[1])[0]?.[0];
-  const winner = BEERS.find(b=>b.id===winnerVote);
-  const avgPoints = totalVotes>0
-    ? (playerList.filter(p=>p.vote).reduce((s,p)=>s+(BEERS.find(b=>b.id===p.vote)?.points||0),0)/totalVotes).toFixed(1)
+  const winner     = BEERS.find(b=>b.id===winnerVote);
+  const avgPoints  = totalVotes>0
+    ? (voters.filter(p=>p.vote).reduce((s,p)=>s+(BEERS.find(b=>b.id===p.vote)?.points||0),0)/totalVotes).toFixed(1)
     : null;
   const isConsensus = totalVotes>0 && Object.keys(voteCounts).length===1;
   const shareURL = roomCode ? (()=>{const u=new URL(window.location.href);u.search="";u.searchParams.set("room",roomCode);return u.toString();})() : "";
 
   const inputStyle = {width:"100%",background:S.card2,border:`2px solid ${S.border}`,borderRadius:10,padding:"12px 16px",color:S.text,fontSize:15,outline:"none",fontFamily:"Georgia,serif"};
-  const ghostBtn = {background:"transparent",border:`2px solid ${S.border}`,borderRadius:10,padding:"8px 16px",color:S.text,cursor:"pointer",fontSize:12,fontFamily:"Georgia,serif"};
+  const ghostBtn   = {background:"transparent",border:`2px solid ${S.border}`,borderRadius:10,padding:"8px 16px",color:S.text,cursor:"pointer",fontSize:12,fontFamily:"Georgia,serif"};
 
   // ════════════════════════════════════════════════════════
   // HOME
@@ -261,14 +277,15 @@ export default function App() {
         <p style={{color:S.muted,fontSize:15}}>Planning en cañas, no en puntos abstractos</p>
       </div>
 
-      <div style={{background:S.card,border:`2px solid ${S.border}`,borderRadius:24,padding:"36px 40px",width:"100%",maxWidth:460,boxShadow:"0 32px 80px rgba(0,0,0,0.7)"}}>
+      <div style={{background:S.card,border:`2px solid ${S.border}`,borderRadius:24,padding:"36px 40px",width:"100%",maxWidth:480,boxShadow:"0 32px 80px rgba(0,0,0,0.7)"}}>
         <div style={{marginBottom:20}}>
           <label style={{fontSize:11,fontWeight:700,color:S.muted,textTransform:"uppercase",letterSpacing:1,display:"block",marginBottom:8}}>Tu nombre</label>
           <input value={nameInput} onChange={e=>setNameInput(e.target.value)}
             onKeyDown={e=>e.key==="Enter"&&(codeInput.length>=4?joinRoom():createRoom())}
             placeholder="Ej: Jordi, María..." autoFocus style={inputStyle}/>
         </div>
-        <div style={{marginBottom:24}}>
+
+        <div style={{marginBottom:20}}>
           <label style={{fontSize:11,fontWeight:700,color:S.muted,textTransform:"uppercase",letterSpacing:1,display:"block",marginBottom:8}}>
             Código de sala <span style={{fontWeight:400,textTransform:"none"}}>(vacío = crear nueva)</span>
           </label>
@@ -277,8 +294,23 @@ export default function App() {
             placeholder="Ej: BIRRA7"
             style={{...inputStyle,color:S.gold,fontSize:20,fontFamily:"monospace",letterSpacing:4}}/>
         </div>
-        <button onClick={codeInput.length>=4?joinRoom:createRoom} disabled={!nameInput.trim()} style={{width:"100%",background:"linear-gradient(135deg,#d4a853,#b8831f)",border:"none",borderRadius:12,padding:"14px",color:"#0d0a06",fontWeight:800,cursor:nameInput.trim()?"pointer":"not-allowed",fontSize:15,fontFamily:"Georgia,serif",opacity:nameInput.trim()?1:0.4}}>
-          {codeInput.length>=4?"🍺 Unirse a la sala":"🎲 Crear sala nueva"}
+
+        {/* Observer toggle */}
+        <div style={{marginBottom:24}}>
+          <Toggle
+            checked={isObserverInput}
+            onChange={setIsObserverInput}
+            label="👁️ Entrar como observador"
+            sub="Verás la votación pero no votarás · ideal para SM y PO"
+          />
+        </div>
+
+        <button
+          onClick={codeInput.length>=4?joinRoom:createRoom}
+          disabled={!nameInput.trim()}
+          style={{width:"100%",background:"linear-gradient(135deg,#d4a853,#b8831f)",border:"none",borderRadius:12,padding:"14px",color:"#0d0a06",fontWeight:800,cursor:nameInput.trim()?"pointer":"not-allowed",fontSize:15,fontFamily:"Georgia,serif",opacity:nameInput.trim()?1:0.4}}
+        >
+          {isObserverInput ? "👁️ Entrar a observar" : (codeInput.length>=4?"🍺 Unirse a la sala":"🎲 Crear sala nueva")}
         </button>
       </div>
 
@@ -308,7 +340,9 @@ export default function App() {
             <div>
               <div style={{fontSize:17,fontWeight:900,color:S.gold,fontFamily:"Georgia,serif"}}>Beer Poker</div>
               <div style={{fontSize:11,color:S.muted}}>
-                {myName} · sala <strong style={{color:S.gold,fontFamily:"monospace",letterSpacing:2}}>{roomCode}</strong>
+                {myName}
+                {amObserver && <span style={{color:"#60a5fa",marginLeft:6}}>👁️ observando</span>}
+                {" · sala "}<strong style={{color:S.gold,fontFamily:"monospace",letterSpacing:2}}>{roomCode}</strong>
                 <span style={{marginLeft:8,color:connected?"#6b9b47":"#ef4444"}}>● {connected?"en vivo":"reconectando..."}</span>
               </div>
             </div>
@@ -352,56 +386,86 @@ export default function App() {
           {story && <div style={{marginTop:8,fontSize:13,color:S.text,fontStyle:"italic",padding:"8px 12px",background:S.card2,borderRadius:8}}>📋 {story}</div>}
         </div>
 
-        {/* Tabs */}
-        <div style={{display:"flex",gap:8,marginBottom:16}}>
-          {[["vote","🍺 Votar tamaño"],["capacity","📊 Mi capacidad"]].map(([t,lbl])=>(
-            <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?S.card:"transparent",border:`2px solid ${tab===t?S.gold:S.border}`,borderRadius:10,padding:"8px 18px",color:tab===t?S.gold:S.muted,cursor:"pointer",fontSize:13,fontWeight:700,fontFamily:"Georgia,serif"}}>{lbl}</button>
-          ))}
-        </div>
-
-        {/* Beer cards */}
-        {tab==="vote" && (
-          <div style={{background:S.card,border:`2px solid ${S.border}`,borderRadius:20,padding:"28px 24px",marginBottom:16}}>
-            <div style={{fontSize:12,color:S.muted,fontWeight:700,textTransform:"uppercase",letterSpacing:1,marginBottom:22,textAlign:"center"}}>¿Cuánta cerveza tiene esta historia?</div>
-            <div style={{display:"flex",gap:14,flexWrap:"wrap",justifyContent:"center"}}>
-              {BEERS.map(beer=><BeerCard key={beer.id} beer={beer} selected={myVote===beer.id} onClick={()=>castVote(beer.id)}/>)}
-            </div>
-          </div>
-        )}
-
-        {/* Capacity */}
-        {tab==="capacity" && (
-          <div style={{background:S.card,border:`2px solid ${S.border}`,borderRadius:20,padding:"28px 24px",marginBottom:16}}>
-            <div style={{fontSize:12,color:S.muted,fontWeight:700,textTransform:"uppercase",letterSpacing:1,marginBottom:20,textAlign:"center"}}>¿Cuántas cañas tienes este sprint?</div>
-            <div style={{display:"flex",gap:10,flexWrap:"wrap",justifyContent:"center"}}>
-              {CAPACITY.map(c=>(
-                <button key={c.val} onClick={()=>saveCapacity(c.val)} style={{background:myCapacity===c.val?"#2d2418":S.card2,border:`3px solid ${myCapacity===c.val?S.gold:S.border}`,borderRadius:14,padding:"16px 20px",cursor:"pointer",textAlign:"center",transition:"all 0.2s",minWidth:110,transform:myCapacity===c.val?"scale(1.06)":"scale(1)",fontFamily:"Georgia,serif"}}>
-                  <div style={{fontSize:20,marginBottom:4}}>{c.emoji}</div>
-                  <div style={{fontSize:12,fontWeight:800,color:myCapacity===c.val?S.gold:S.text}}>{c.label}</div>
-                  <div style={{fontSize:10,color:S.muted,marginTop:2}}>{c.desc}</div>
-                </button>
+        {/* Tabs — solo para votantes */}
+        {!amObserver && (
+          <>
+            <div style={{display:"flex",gap:8,marginBottom:16}}>
+              {[["vote","🍺 Votar tamaño"],["capacity","📊 Mi capacidad"]].map(([t,lbl])=>(
+                <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?S.card:"transparent",border:`2px solid ${tab===t?S.gold:S.border}`,borderRadius:10,padding:"8px 18px",color:tab===t?S.gold:S.muted,cursor:"pointer",fontSize:13,fontWeight:700,fontFamily:"Georgia,serif"}}>{lbl}</button>
               ))}
             </div>
+
+            {tab==="vote" && (
+              <div style={{background:S.card,border:`2px solid ${S.border}`,borderRadius:20,padding:"28px 24px",marginBottom:16}}>
+                <div style={{fontSize:12,color:S.muted,fontWeight:700,textTransform:"uppercase",letterSpacing:1,marginBottom:22,textAlign:"center"}}>¿Cuánta cerveza tiene esta historia?</div>
+                <div style={{display:"flex",gap:14,flexWrap:"wrap",justifyContent:"center"}}>
+                  {BEERS.map(beer=><BeerCard key={beer.id} beer={beer} selected={myVote===beer.id} onClick={()=>castVote(beer.id)}/>)}
+                </div>
+              </div>
+            )}
+
+            {tab==="capacity" && (
+              <div style={{background:S.card,border:`2px solid ${S.border}`,borderRadius:20,padding:"28px 24px",marginBottom:16}}>
+                <div style={{fontSize:12,color:S.muted,fontWeight:700,textTransform:"uppercase",letterSpacing:1,marginBottom:20,textAlign:"center"}}>¿Cuántas cañas tienes este sprint?</div>
+                <div style={{display:"flex",gap:10,flexWrap:"wrap",justifyContent:"center"}}>
+                  {CAPACITY.map(c=>(
+                    <button key={c.val} onClick={()=>saveCapacity(c.val)} style={{background:myCapacity===c.val?"#2d2418":S.card2,border:`3px solid ${myCapacity===c.val?S.gold:S.border}`,borderRadius:14,padding:"16px 20px",cursor:"pointer",textAlign:"center",transition:"all 0.2s",minWidth:110,transform:myCapacity===c.val?"scale(1.06)":"scale(1)",fontFamily:"Georgia,serif"}}>
+                      <div style={{fontSize:20,marginBottom:4}}>{c.emoji}</div>
+                      <div style={{fontSize:12,fontWeight:800,color:myCapacity===c.val?S.gold:S.text}}>{c.label}</div>
+                      <div style={{fontSize:10,color:S.muted,marginTop:2}}>{c.desc}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Banner para observadores */}
+        {amObserver && (
+          <div style={{background:"#0d1a2d",border:"2px solid #1e3a5f",borderRadius:16,padding:"20px 24px",marginBottom:16,textAlign:"center"}}>
+            <div style={{fontSize:32,marginBottom:8}}>👁️</div>
+            <div style={{fontWeight:700,fontSize:15,color:"#60a5fa",fontFamily:"Georgia,serif"}}>Modo observador activo</div>
+            <div style={{fontSize:12,color:S.muted,marginTop:4}}>Estás viendo la votación en tiempo real · No puedes votar</div>
+            <div style={{marginTop:12,fontSize:13,color:"#93c5fd"}}>
+              {totalVoted}/{voters.length} votantes han votado
+              {allVoted ? " · ¡Listos para revelar! 🎉" : ""}
+            </div>
           </div>
         )}
 
-        {/* Players */}
-        <div style={{background:S.card,border:`2px solid ${S.border}`,borderRadius:16,padding:"18px 20px"}}>
+        {/* Players — Votantes */}
+        <div style={{background:S.card,border:`2px solid ${S.border}`,borderRadius:16,padding:"18px 20px",marginBottom: observers.length>0 ? 12 : 0}}>
           <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14}}>
             <div style={{fontSize:12,color:S.muted,fontWeight:700,textTransform:"uppercase",letterSpacing:1}}>
-              Jugadores · {totalVoted}/{playerList.length} listos
+              Votantes · {totalVoted}/{voters.length} listos
             </div>
             {allVoted && <span style={{fontSize:12,color:"#6b9b47",fontWeight:700}}>¡Todos han votado! 🎉</span>}
           </div>
           <div style={{display:"flex",gap:14,flexWrap:"wrap"}}>
-            {playerList.map(p=>(
-              <PlayerPill key={p.id} player={p} revealed={false} isMe={p.id===myId} onKick={()=>kickPlayer(p.id)}/>
+            {voters.map(p=>(
+              <PlayerPill key={p.id} player={p} revealed={false} isMe={p.id===myId} onKick={()=>kickPlayer(p.id)} isObserver={false}/>
             ))}
+            {voters.length===0 && <div style={{fontSize:13,color:S.muted,fontStyle:"italic"}}>Nadie votando aún...</div>}
           </div>
           <div style={{marginTop:14,height:5,background:"#111",borderRadius:3,overflow:"hidden"}}>
-            <div style={{height:"100%",width:`${playerList.length>0?(totalVoted/playerList.length)*100:0}%`,background:allVoted?"#6b9b47":S.gold,borderRadius:3,transition:"width 0.5s"}}/>
+            <div style={{height:"100%",width:`${voters.length>0?(totalVoted/voters.length)*100:0}%`,background:allVoted?"#6b9b47":S.gold,borderRadius:3,transition:"width 0.5s"}}/>
           </div>
         </div>
+
+        {/* Observers section */}
+        {observers.length>0 && (
+          <div style={{background:"#0a1520",border:"2px solid #1e3a5f",borderRadius:16,padding:"16px 20px"}}>
+            <div style={{fontSize:12,color:"#3b82f6",fontWeight:700,textTransform:"uppercase",letterSpacing:1,marginBottom:12}}>
+              👁️ Observando · {observers.length}
+            </div>
+            <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
+              {observers.map(p=>(
+                <PlayerPill key={p.id} player={p} revealed={false} isMe={p.id===myId} onKick={()=>kickPlayer(p.id)} isObserver={true}/>
+              ))}
+            </div>
+          </div>
+        )}
 
       </div>
     </div>
@@ -421,8 +485,7 @@ export default function App() {
         </div>
 
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20,marginBottom:20}}>
-
-          {/* Vote chart */}
+          {/* Chart */}
           <div style={{background:S.card,border:`2px solid ${S.border}`,borderRadius:18,padding:"22px 24px"}}>
             <div style={{fontSize:11,color:S.muted,fontWeight:700,textTransform:"uppercase",letterSpacing:1,marginBottom:16}}>Distribución de votos</div>
             {BEERS.filter(b=>voteCounts[b.id]).map(b=>{
@@ -448,15 +511,23 @@ export default function App() {
             </div>
           </div>
 
-          {/* Players revealed */}
+          {/* Players */}
           <div style={{background:S.card,border:`2px solid ${S.border}`,borderRadius:18,padding:"22px 24px"}}>
             <div style={{fontSize:11,color:S.muted,fontWeight:700,textTransform:"uppercase",letterSpacing:1,marginBottom:16}}>Votos individuales</div>
-            <div style={{display:"flex",flexDirection:"column",gap:14}}>
-              {playerList
+            <div style={{display:"flex",flexDirection:"column",gap:12}}>
+              {voters
                 .sort((a,b)=>(BEERS.find(x=>x.id===b.vote)?.points||0)-(BEERS.find(x=>x.id===a.vote)?.points||0))
-                .map(p=><PlayerPill key={p.id} player={p} revealed={true} isMe={p.id===myId} onKick={()=>kickPlayer(p.id)}/>)
+                .map(p=><PlayerPill key={p.id} player={p} revealed={true} isMe={p.id===myId} onKick={()=>kickPlayer(p.id)} isObserver={false}/>)
               }
             </div>
+            {observers.length>0 && (
+              <div style={{marginTop:14,paddingTop:14,borderTop:`1px solid ${S.border}`}}>
+                <div style={{fontSize:11,color:"#3b82f6",fontWeight:700,textTransform:"uppercase",letterSpacing:1,marginBottom:10}}>👁️ Observadores</div>
+                <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                  {observers.map(p=><PlayerPill key={p.id} player={p} revealed={true} isMe={p.id===myId} onKick={()=>kickPlayer(p.id)} isObserver={true}/>)}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -468,17 +539,10 @@ export default function App() {
           }
         </div>
 
-        {/* Actions */}
         <div style={{display:"flex",gap:12,justifyContent:"center",flexWrap:"wrap"}}>
-          <button onClick={resetVotes} style={{background:"linear-gradient(135deg,#d4a853,#b8831f)",border:"none",borderRadius:12,padding:"14px 32px",color:"#0d0a06",fontWeight:800,cursor:"pointer",fontSize:15,fontFamily:"Georgia,serif"}}>
-            🔄 Nueva votación
-          </button>
-          <button onClick={()=>setShowShare(s=>!s)} style={{background:"transparent",border:`2px solid ${S.border}`,borderRadius:12,padding:"14px 20px",color:S.text,cursor:"pointer",fontSize:14,fontFamily:"Georgia,serif"}}>
-            🔗 Compartir sala
-          </button>
-          <button onClick={()=>setScreen("voting")} style={{background:"transparent",border:`2px solid ${S.border}`,borderRadius:12,padding:"14px 20px",color:S.text,cursor:"pointer",fontSize:14,fontFamily:"Georgia,serif"}}>
-            ← Volver a sala
-          </button>
+          <button onClick={resetVotes} style={{background:"linear-gradient(135deg,#d4a853,#b8831f)",border:"none",borderRadius:12,padding:"14px 32px",color:"#0d0a06",fontWeight:800,cursor:"pointer",fontSize:15,fontFamily:"Georgia,serif"}}>🔄 Nueva votación</button>
+          <button onClick={()=>setShowShare(s=>!s)} style={{background:"transparent",border:`2px solid ${S.border}`,borderRadius:12,padding:"14px 20px",color:S.text,cursor:"pointer",fontSize:14,fontFamily:"Georgia,serif"}}>🔗 Compartir sala</button>
+          <button onClick={()=>setScreen("voting")} style={{background:"transparent",border:`2px solid ${S.border}`,borderRadius:12,padding:"14px 20px",color:S.text,cursor:"pointer",fontSize:14,fontFamily:"Georgia,serif"}}>← Volver a sala</button>
         </div>
 
         {showShare && (
@@ -494,5 +558,7 @@ export default function App() {
     </div>
   );
 
+  return null;
+}
   return null;
 }
