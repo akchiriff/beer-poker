@@ -19,12 +19,11 @@ Compártela con tu equipo y ¡a estimar! 🍺
 
 | Cerveza | Puntos | Cuándo |
 |---------|--------|--------|
-| 🍺 Quinto | 1 | Simple y rápido |
-| 🍻 Caña | 2 | Algo de análisis |
-| 🍾 Tercio | 4 | Compleja, con partes |
-| 🪣 Jarra | 6 | Muy compleja, riesgo alto |
-| 🛢️ Litrona | 8 | Épica, hay que dividirla |
-| 🛑 ¡Barril! | 10 | Rompe en tareas primero |
+| 🍺 Quinto | 2 | Simple y rápido |
+| 🍻 Caña | 4 | Algo de análisis |
+| 🍾 Tercio | 6 | Compleja, con partes |
+| 🪣 Jarra | 8 | Muy compleja, riesgo alto |
+| 🛢️ Litrona | 10 | Épica, hay que dividirla |
 
 ## Nota técnica
 
