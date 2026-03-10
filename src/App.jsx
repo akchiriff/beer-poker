@@ -2,12 +2,11 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import Ably from "ably"; 
 
 const BEERS = [
-  { id: "quinto",  label: "Quinto",   emoji: "🍺",   points: 1,  desc: "Simple y rápido",          color: "#F59E0B", bg: "#2d2100" },
-  { id: "cana",    label: "Caña",     emoji: "🍻",   points: 2,  desc: "Algo de análisis",          color: "#F97316", bg: "#2d1800" },
-  { id: "tercio",  label: "Tercio",   emoji: "🍾",   points: 4,  desc: "Compleja, con partes",      color: "#EF4444", bg: "#2d0d0d" },
-  { id: "jarra",   label: "Jarra",    emoji: "🪣",   points: 6,  desc: "Muy compleja, riesgo alto", color: "#8B5CF6", bg: "#1a0d2d" },
-  { id: "litrona", label: "Litrona",  emoji: "🛢️",  points: 8,  desc: "Épica, hay que dividirla",  color: "#3B82F6", bg: "#0d1a2d" },
-  { id: "barril",  label: "Barril!",  emoji: "🍺🍺", points: 10, desc: "Rompe en tareas primero",   color: "#6B7280", bg: "#1a1a1a" },
+  { id: "quinto",  label: "Quinto",   emoji: "🍺",   points: 2,  desc: "Simple y rápido",          color: "#F59E0B", bg: "#2d2100" },
+  { id: "cana",    label: "Caña",     emoji: "🍻",   points: 4,  desc: "Algo de análisis",          color: "#F97316", bg: "#2d1800" },
+  { id: "tercio",  label: "Tercio",   emoji: "🍾",   points: 6,  desc: "Compleja, con partes",      color: "#EF4444", bg: "#2d0d0d" },
+  { id: "jarra",   label: "Jarra",    emoji: "🪣",   points: 8,  desc: "Muy compleja, riesgo alto", color: "#8B5CF6", bg: "#1a0d2d" },
+  { id: "litrona", label: "Litrona",  emoji: "🛢️",  points: 10,  desc: "Épica, hay que dividirla",  color: "#3B82F6", bg: "#0d1a2d" },
 ];
 
 const CAPACITY = [
